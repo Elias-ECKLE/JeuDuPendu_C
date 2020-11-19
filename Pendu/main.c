@@ -151,7 +151,16 @@ int CondFinDePartie(int,int);
 void DessinerPendu(int);
 int consequenceManche(int,int);
 
-
+//procedures dessins pantin ;
+void PotenceVerti();
+void PotenceInter();
+void PotenceHorizon();
+void Corde();
+void Tete();
+void TroncCorps();
+void BrasG();
+void BrasD();
+void JambeD();
 
 
 //var globales :
@@ -427,6 +436,7 @@ void DessinerPendu(int cptVie){
             PotenceInter();
             PotenceHorizon();
     //Corde
+        break;
        case 7:
             PotenceVerti();
             PotenceInter();
