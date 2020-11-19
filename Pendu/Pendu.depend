@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1605729277 source:c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<windows.h>
+
