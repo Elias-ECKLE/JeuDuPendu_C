@@ -139,65 +139,78 @@ FIN
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h> //biblio pr gotoxy
-#define TAILLE 255
+#define TAILLE 25 //valeur pour les tableaux de caractères : motMYSTERE et MotATrouver
+
+
 
 //Prototypes :
 void gotoxy(short x, short y);
-void ChoixMotATrouver ();
-int RemplacCar(char);
-void AfficherMot();
-char DemanderLettre();
-int CondFinDePartie(int,int);
-void DessinerPendu(int);
-int consequenceManche(int,int);
+void ChoixMotATrouver(char motATrouver[]);
+void RemplacCar(int *lettreEstAjoutee, char car,char motATrouver[], char motMystere[]);
+void AfficherMot(char motMystere[]);
+void DemanderLettre(char *car);
+int CondFinDePartie(int,int,char motATrouver[],char motMystere[]);
+void consequenceManche(int *cptVie,int lettreEstAjoutee);
+void DessinerPendu(int cptVie,int taillePend, int *ligne, int *hauteur);
+
+//procedures dessins pantin ;
+void PotenceVerti(int taillePend,int *ligne,int *hauteur);
+void PotenceInter(int *ligne,int *hauteur);
+void PotenceHorizon(int taillePend, int *ligne, int *hauteur);
+void Corde(int taillePend, int *ligne, int *hauteur);
+void Tete(int *ligne, int *hauteur);
+void TroncCorps(int taillePend, int *ligne, int *hauteur);
+void BrasG(int *ligne, int *hauteur);
+void BrasD(int *ligne, int *hauteur);
+void JambeD(int *ligne, int *hauteur);
 
 
+const int taillePend=11;  //taille du pendu et valeur déterminant le nb de vie possible du joueur
 
 
-//var globales :
-//var pour stocker les mots
-char motATrouver[TAILLE]="";
-char motMystere[TAILLE]="";
-//var pour déplacer le curseur et faire le dessin du pendu
-int hauteur=1;
-int ligne=1;
-const int taillePend=11;
-int cptVie=taillePend;
 
 
 
 //Prog principal______________________________________________
 int main()
 {
+     //var pour stocker les mots
+    char motATrouver[TAILLE]="";
+    char motMystere[TAILLE]="";
 
+    //var pour déplacer le curseur et faire le dessin du pendu
+    int cptVie=taillePend;
     int i;
     char car='-';
     int lettreEstAjoutee=0; //si une lettre est trouvée par le joueur, alors la variable passe à 1 (bool ne fonctionnait pas)
+    int hauteur=1;
+    int ligne=1;
+
+
 
     //init :
     printf("Bienvenue dans le jeu du pendu :\n");
-    ChoixMotATrouver(); //on demande au joueur de choisir un mot en début de partie
+    ChoixMotATrouver(motATrouver); //on demande au joueur de choisir un mot en début de partie
     //init du mot mystère avec des tirets
-    RemplacCar(car);
-    AfficherMot();
+    RemplacCar(&lettreEstAjoutee,car,motATrouver,motMystere);
+    AfficherMot(motMystere);
 
 
 
     //jeu : Afficher et demander une lettre
     do{
 
-        car=DemanderLettre();
-        lettreEstAjoutee=RemplacCar(car);
-
-        AfficherMot();
-        cptVie=consequenceManche(cptVie,lettreEstAjoutee); //on regarde s'il faut enlever un pt au comteur de vie ou non
+        DemanderLettre(&car);
+        RemplacCar(&lettreEstAjoutee,car,motATrouver,motMystere);
+        AfficherMot(motMystere);
+        consequenceManche(&cptVie,lettreEstAjoutee); //on regarde s'il faut enlever un pt au comteur de vie ou non
         //et met à jour le dessin du pendu
+        DessinerPendu(cptVie,taillePend,&ligne,&hauteur);
+
+    }while(CondFinDePartie(cptVie,lettreEstAjoutee,motATrouver, motMystere)==0);
 
 
-    }while(CondFinDePartie(cptVie,lettreEstAjoutee)==0);
 
-    //on affiche une dernière fois le pendu :
-    DessinerPendu(cptVie);
 
     return 0;
 }
@@ -218,17 +231,18 @@ void gotoxy(short x, short y)
 }
 
 
-void ChoixMotATrouver (){
+void ChoixMotATrouver(char motATrouver[]){
 //BUT:Choisir en début de partie le mot mystère
 //ENTREE:tableau de caractères
 //SORTIE:tableau de caractères
 
     printf("Afin de commencer une partie, veuillez entrer un mot\n");
     scanf("%s",motATrouver);
+
 }
 
 
-char DemanderLettre(){
+void DemanderLettre(char *car){
 //BUT:Demander au joueur d'entrer un caractère
 //ENTREE:rien
 //SORTIE:caractere
@@ -237,19 +251,18 @@ char DemanderLettre(){
     printf("Veuillez entrer un caractere : \n");
     getchar();
     scanf("%c",&lettre);
-
-    return lettre;
+    *car=lettre;
 }
 
 
 
-int RemplacCar(char car){
+void RemplacCar(int *lettreEstAjoutee, char car, char motATrouver[],char motMystere[]){
 //BUT:Remplacer les caractère du motATrouver par soit des underscore en début de partie, soit des lettres le reste du jeu
 //ENTREE:le mot a trouver, le caractère que l'on veut mettre, le mot mystère
 //SORTIE:Le mot mystere
 
     int i=0;
-    int lettreEstAjoutee=0;
+    *lettreEstAjoutee=0;
 
     if (car=='-'){ // si c'est l'underscore c'est pour init la chaine
         for(i=0;i<strlen(motATrouver);i++){
@@ -260,15 +273,14 @@ int RemplacCar(char car){
         for(i=0;i<strlen(motATrouver);i++){
             if(motATrouver[i]==car){
                 motMystere[i]=car;
-                lettreEstAjoutee=1;
+                *lettreEstAjoutee=1;
             }
         }
     }
-    return lettreEstAjoutee;
 }
 
 
-void AfficherMot(){
+void AfficherMot(char motMystere[]){
 //BUT:Afficher l'état du motmystère
 //ENTREE:motmystere
 //SORTIE:rien
@@ -279,7 +291,7 @@ void AfficherMot(){
 }
 
 
-int CondFinDePartie(int cptVie,int lettreEstAjoutee){
+int CondFinDePartie(int cptVie,int lettreEstAjoutee,char motATrouver[], char motMystere[]){
 
      gotoxy(1,15);
     if(cptVie==0){
@@ -307,215 +319,216 @@ int CondFinDePartie(int cptVie,int lettreEstAjoutee){
 
 
 //DESSIN PENDU :DIFFERENTS PROCEDURE
-void PotenceVerti(){
+void PotenceVerti(int taillePend,int *ligne,int *hauteur){
     int i;
-    hauteur=1;
-    ligne=1;
+    *hauteur=1;
+    *ligne=1;
     for(i=0;i<taillePend;i++){
-        hauteur++;
-        gotoxy(ligne,hauteur);
+        *hauteur=*hauteur+1;
+        gotoxy(*ligne,*hauteur);
         printf("|");
     }
 }
-void PotenceInter(){
-    hauteur=1;
-    ligne=1;
-    ligne++;
-    hauteur++;
-    gotoxy(ligne,hauteur);
+
+void PotenceInter(int *ligne,int *hauteur){
+    *hauteur=1;
+    *ligne=1;
+    *ligne=*ligne+1;
+    *hauteur=*hauteur+1;
+    gotoxy(*ligne,*hauteur);
     printf("/");
 }
-void PotenceHorizon(){
-    hauteur=1;
-    ligne=1;
+
+void PotenceHorizon(int taillePend, int *ligne, int *hauteur){
+    *hauteur=1;
+    *ligne=1;
     int i;
     int taillePendDouble=taillePend*2;
     for (i=0;i<taillePendDouble-2;i++){
-        ligne++;
-        gotoxy(ligne,hauteur);
+        *ligne=*ligne+1;
+        gotoxy(*ligne,*hauteur);
         printf("-");
     }
 }
-void Corde(){
+void Corde(int taillePend, int *ligne, int *hauteur){
     int i;
     for (i=0;i<(taillePend/4);i++){
-        hauteur++;
-        gotoxy(ligne,hauteur);
+        *hauteur=*hauteur+1;
+        gotoxy(*ligne,*hauteur);
         printf("|");
     }
 }
-void Tete(){
-
-
+void Tete(int *ligne, int *hauteur){
 
     //g a d
-    hauteur++;
-    gotoxy(ligne, hauteur);
+    *hauteur=*hauteur+1;
+    gotoxy(*ligne,*hauteur);
     printf("-");
     // h vers b
-    hauteur++;
-    ligne++;
-    gotoxy(ligne, hauteur);
+    *hauteur=*hauteur+1;
+    *ligne=*ligne+1;
+    gotoxy(*ligne, *hauteur);
     printf("|");
     //d vers g
-    hauteur++;
-    ligne--;
-    gotoxy(ligne, hauteur);
+    *hauteur=*hauteur+1;
+    *ligne=*ligne-1;
+    gotoxy(*ligne,*hauteur);
     printf("-");
     //b vers h
-    ligne--;
-    hauteur--;
-    gotoxy(ligne, hauteur);
+    *ligne=*ligne-1;
+    *hauteur=*hauteur-1;
+    gotoxy(*ligne,*hauteur);
     printf("|");
 }
 
-void TroncCorps(){
+void TroncCorps(int taillePend, int *ligne, int *hauteur){
     int i;
-    hauteur++;
-    ligne++;
+    *hauteur=*hauteur+1;
+    *ligne=*ligne+1;
     for (i=0;i<taillePend-8;i++){
-        hauteur++;
-        gotoxy(ligne,hauteur);
+        *hauteur=*hauteur+1;
+        gotoxy(*ligne,*hauteur);
         printf("|");
     }
 }
 
-void BrasG(){
-    ligne--;
-    ligne--;
-    gotoxy(ligne, hauteur);
-    printf("/");
+void BrasG(int *ligne, int *hauteur){
+    *ligne=*ligne-1;
+    *ligne=*ligne-1;
+     gotoxy(*ligne,*hauteur);
+     printf("/");
 }
-void BrasD(){
-    ligne=ligne+4;
-    gotoxy(ligne, hauteur);
+void BrasD(int *ligne, int *hauteur){
+    *ligne=*ligne+4;
+    gotoxy(*ligne,*hauteur);
     printf("\\");
 }
-void JambeD(){
-    hauteur=hauteur+2;
-    gotoxy(ligne, hauteur);
+void JambeD(int *ligne, int *hauteur){
+    *hauteur=*hauteur+2;
+    gotoxy(*ligne, *hauteur);
     printf("\\");
 }
-void JambeG(){
-    ligne=ligne-1;
-    gotoxy(ligne, hauteur);
+void JambeG(int *ligne, int *hauteur){
+    *ligne=*ligne-1;
+    gotoxy(*ligne, *hauteur);
     write("/");
 }
 
 
-void DessinerPendu(int cptVie){
+void DessinerPendu(int cptVie,int taillePend, int *ligne, int *hauteur){
 
     int i;
-
-
     switch(cptVie){
 
     //potence verti :
         case 10:
-            PotenceVerti();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
         break;
 
     //potence Inter
         case 9:
-            PotenceVerti();
-            PotenceInter();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
         break;
 
     //potence horizontale :
         case 8:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+        break;
     //Corde
-       case 7:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
+        case 7:
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
         break;
 
     //tete
+
        case 6:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
         break;
 
     //troncCorps
        case 5:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
         break;
 
     //brasG
         case 4:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
-            BrasG();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
+            BrasG(&*ligne,&*hauteur);
         break;
 
     //brasD
         case 3:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
-            BrasG();
-            BrasD();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
+            BrasG(&*ligne,&*hauteur);
+            BrasD(&*ligne,&*hauteur);
         break;
 
     //jambeD
        case 2:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
-            BrasG();
-            BrasD();
-            JambeD();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
+            BrasG(&*ligne,&*hauteur);
+            BrasD(&*ligne,&*hauteur);
+            JambeD(&*ligne,&*hauteur);
         break;
 
     //jambeG
         case 1:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
-            BrasG();
-            BrasD();
-            JambeD();
-            JambeG();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
+            BrasG(&*ligne,&*hauteur);
+            BrasD(&*ligne,&*hauteur);
+            JambeD(&*ligne,&*hauteur);
+            JambeG(&*ligne,&*hauteur);
         break;
 
     //Tout afficher à la fin de partie si on perd :
 
         case 0:
-            PotenceVerti();
-            PotenceInter();
-            PotenceHorizon();
-            Corde();
-            Tete();
-            TroncCorps();
-            BrasG();
-            BrasD();
-            JambeD();
-            JambeG();
+            PotenceVerti(taillePend,&*ligne,&*hauteur);
+            PotenceInter(&*ligne,&*hauteur);
+            PotenceHorizon(taillePend,&*ligne,&*hauteur);
+            Corde(taillePend,&*ligne,&*hauteur);
+            Tete(&*ligne,&*hauteur);
+            TroncCorps(taillePend,&*ligne,&*hauteur);
+            BrasG(&*ligne,&*hauteur);
+            BrasD(&*ligne,&*hauteur);
+            JambeD(&*ligne,&*hauteur);
+            JambeG(&*ligne,&*hauteur);
+
         break;
     }
 
@@ -523,14 +536,13 @@ void DessinerPendu(int cptVie){
 
 
 
-int consequenceManche(int cptVie, int lettreEstAjoutee){
+void consequenceManche(int *cptVie, int lettreEstAjoutee){
 
     //on enlève un pt au compteur de vie si on n'arrive pas à trouver une lettre se trouvant ds le mot mystere
     if(lettreEstAjoutee==0){
-          cptVie--;
-          //on met à jour le dessin du pendu
+          *cptVie=*cptVie-1;
+
     }
-      DessinerPendu(cptVie);
-    return cptVie;
+
 }
 
