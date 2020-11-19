@@ -161,14 +161,15 @@ char motMystere[TAILLE]="";
 //var pour déplacer le curseur et faire le dessin du pendu
 int hauteur=1;
 int ligne=1;
-int taillePend=10;
+const int taillePend=11;
+int cptVie=taillePend;
 
 
 
 //Prog principal______________________________________________
 int main()
 {
-    int cptVie=taillePend;
+
     int i;
     char car='-';
     int lettreEstAjoutee=0; //si une lettre est trouvée par le joueur, alors la variable passe à 1 (bool ne fonctionnait pas)
@@ -189,12 +190,14 @@ int main()
         lettreEstAjoutee=RemplacCar(car);
 
         AfficherMot();
-        cptVie=consequenceManche(cptVie,lettreEstAjoutee);
+        cptVie=consequenceManche(cptVie,lettreEstAjoutee); //on regarde s'il faut enlever un pt au comteur de vie ou non
+        //et met à jour le dessin du pendu
 
 
     }while(CondFinDePartie(cptVie,lettreEstAjoutee)==0);
 
-
+    //on affiche une dernière fois le pendu :
+    DessinerPendu(cptVie);
 
     return 0;
 }
@@ -206,12 +209,14 @@ int main()
 //Procedures :_________________________________________________
 
 // Fonction qui permet de placer le curseur à la position x,y
+//GOTO
 void gotoxy(short x, short y)
 {
 	HANDLE hConsole=GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD Pos={x,y};
 	SetConsoleCursorPosition(hConsole,Pos);
 }
+
 
 void ChoixMotATrouver (){
 //BUT:Choisir en début de partie le mot mystère
@@ -276,6 +281,7 @@ void AfficherMot(){
 
 int CondFinDePartie(int cptVie,int lettreEstAjoutee){
 
+     gotoxy(1,15);
     if(cptVie==0){
         printf("Dommage, vous avez perdu la partie, le pendu est complet\n\n");
         return 1;
@@ -297,116 +303,221 @@ int CondFinDePartie(int cptVie,int lettreEstAjoutee){
 
 
 
+
+
+
+//DESSIN PENDU :DIFFERENTS PROCEDURE
+void PotenceVerti(){
+    int i;
+    hauteur=1;
+    ligne=1;
+    for(i=0;i<taillePend;i++){
+        hauteur++;
+        gotoxy(ligne,hauteur);
+        printf("|");
+    }
+}
+void PotenceInter(){
+    hauteur=1;
+    ligne=1;
+    ligne++;
+    hauteur++;
+    gotoxy(ligne,hauteur);
+    printf("/");
+}
+void PotenceHorizon(){
+    hauteur=1;
+    ligne=1;
+    int i;
+    int taillePendDouble=taillePend*2;
+    for (i=0;i<taillePendDouble-2;i++){
+        ligne++;
+        gotoxy(ligne,hauteur);
+        printf("-");
+    }
+}
+void Corde(){
+    int i;
+    for (i=0;i<(taillePend/4);i++){
+        hauteur++;
+        gotoxy(ligne,hauteur);
+        printf("|");
+    }
+}
+void Tete(){
+
+
+
+    //g a d
+    hauteur++;
+    gotoxy(ligne, hauteur);
+    printf("-");
+    // h vers b
+    hauteur++;
+    ligne++;
+    gotoxy(ligne, hauteur);
+    printf("|");
+    //d vers g
+    hauteur++;
+    ligne--;
+    gotoxy(ligne, hauteur);
+    printf("-");
+    //b vers h
+    ligne--;
+    hauteur--;
+    gotoxy(ligne, hauteur);
+    printf("|");
+}
+
+void TroncCorps(){
+    int i;
+    hauteur++;
+    ligne++;
+    for (i=0;i<taillePend-8;i++){
+        hauteur++;
+        gotoxy(ligne,hauteur);
+        printf("|");
+    }
+}
+
+void BrasG(){
+    ligne--;
+    ligne--;
+    gotoxy(ligne, hauteur);
+    printf("/");
+}
+void BrasD(){
+    ligne=ligne+4;
+    gotoxy(ligne, hauteur);
+    printf("\\");
+}
+void JambeD(){
+    hauteur=hauteur+2;
+    gotoxy(ligne, hauteur);
+    printf("\\");
+}
+void JambeG(){
+    ligne=ligne-1;
+    gotoxy(ligne, hauteur);
+    write("/");
+}
+
+
 void DessinerPendu(int cptVie){
-
-    /*switch(cptVie){
-
 
     int i;
 
+
+    switch(cptVie){
+
     //potence verti :
         case 10:
-            for(i=0;i<taillePend;i++){
-                hauteur++;
-                gotoxy(ligne,hauteur);
-                printf("|");
-            }
+            PotenceVerti();
         break;
 
     //potence Inter
         case 9:
-            ligne++;
-            hauteur++;
-            gotoxy(ligne, hauteur);
-            printf("/");
+            PotenceVerti();
+            PotenceInter();
         break;
 
-    //Potence horizontale
+    //potence horizontale :
         case 8:
-            taillePend=taillePend*2;
-            for (i=0;i<taillePend-2;i++){
-                ligne++;
-                gotoxy(ligne, hauteur);
-                printf('-');
-            }
-        break;
-
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
     //Corde
-        case 7:
-            for (i=0;i<(taillePend/4);i++){
-                hauteur++;
-                gotoxy(ligne,hauteur);
-                printf("|");
-            }
+       case 7:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
         break;
 
     //tete
-        case 6:
-            hauteur=hauteur+2;
-            //g a d
-            hauteur++;
-            gotoxy(ligne, hauteur);
-            printf("-");
-            // h vers b
-            hauteur++;
-            ligne++;
-            gotoxy(ligne, hauteur);
-            printf("|");
-            //d vers g
-            hauteur++;
-            ligne--;
-             gotoxy(ligne, hauteur);
-            printf("-");
-            //b vers h
-            ligne--;
-            hauteur--;
-             gotoxy(ligne, hauteur);
-            printf("|");
+       case 6:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
         break;
 
     //troncCorps
-        case 5:
-            hauteur++;
-            for (i=0;i<taillePend-8;i++){
-                hauteur++;
-                gotoxy(ligne,hauteur);
-                printf("|");
-            }
+       case 5:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
         break;
 
     //brasG
         case 4:
-            hauteur= hauteur+2;
-            ligne--;
-            gotoxy(ligne, hauteur);
-            printf("\'");
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
+            BrasG();
         break;
 
     //brasD
         case 3:
-            hauteur=hauteur+2;
-            ligne++;
-            gotoxy(ligne, hauteur);
-            printf("/");
-        break;
-
-    //jambeG
-        case 2:
-            hauteur++;
-            ligne--;
-            gotoxy(ligne, hauteur);
-            printf("/");
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
+            BrasG();
+            BrasD();
         break;
 
     //jambeD
-        case 1:
-            hauteur++;
-            ligne++;
-            gotoxy(ligne, hauteur);
-            write("\'");
+       case 2:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
+            BrasG();
+            BrasD();
+            JambeD();
         break;
 
-    }*/
+    //jambeG
+        case 1:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
+            BrasG();
+            BrasD();
+            JambeD();
+            JambeG();
+        break;
+
+    //Tout afficher à la fin de partie si on perd :
+
+        case 0:
+            PotenceVerti();
+            PotenceInter();
+            PotenceHorizon();
+            Corde();
+            Tete();
+            TroncCorps();
+            BrasG();
+            BrasD();
+            JambeD();
+            JambeG();
+        break;
+    }
 
 }
 
@@ -418,9 +529,8 @@ int consequenceManche(int cptVie, int lettreEstAjoutee){
     if(lettreEstAjoutee==0){
           cptVie--;
           //on met à jour le dessin du pendu
-          DessinerPendu(cptVie);
     }
-
+      DessinerPendu(cptVie);
     return cptVie;
 }
 
