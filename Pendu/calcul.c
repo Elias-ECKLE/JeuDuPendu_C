@@ -15,6 +15,9 @@ void gotoxy(short x, short y)
 }
 
 
+
+//___________________________________________________________________________________________________________________________________
+
 void ChoixMotATrouver(char motATrouver[]){
 //BUT:Choisir en début de partie le mot mystère
 //ENTREE:tableau de caractères
@@ -102,7 +105,7 @@ int CondFinDePartie(int cptVie,int lettreEstAjoutee,char motATrouver[], char mot
 
 
 
-//DESSIN PENDU :DIFFERENTS PROCEDURE
+//DESSIN PENDU :DIFFERENTS PROCEDURE____________________________________________________________________________________________________________
 void PotenceVerti(int taillePend,int *ligne,int *hauteur){
     int i;
     *hauteur=1;
@@ -317,6 +320,7 @@ void DessinerPendu(int cptVie,int taillePend, int *ligne, int *hauteur){
     }
 
 }
+
 
 
 

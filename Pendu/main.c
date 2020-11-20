@@ -135,9 +135,7 @@ FIN
 
 //PROGRAMMATION EN C :____________________________________________________________________________________________
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "header.h"
 #define TAILLE 25 //valeur pour les tableaux de caractères : motMYSTERE et MotATrouver
 const int taillePend=11;  //taille du pendu et valeur déterminant le nb de vie possible du joueur
@@ -149,7 +147,6 @@ int main()
      //var pour stocker les mots
     char motATrouver[TAILLE]="";
     char motMystere[TAILLE]="";
-
     //var pour déplacer le curseur et faire le dessin du pendu
     int cptVie=taillePend;
     int i;
@@ -160,7 +157,8 @@ int main()
 
 
 
-    //init :
+
+    //init -----------------------------------------------------------------------------------------------:
     printf("Bienvenue dans le jeu du pendu :\n");
     ChoixMotATrouver(motATrouver); //on demande au joueur de choisir un mot en début de partie
     //init du mot mystère avec des tirets
@@ -169,7 +167,8 @@ int main()
 
 
 
-    //jeu : Afficher et demander une lettre
+    //jeu -------------------------------------------------------------------------------------------------:
+    //Afficher et demander une lettre
     do{
         DemanderLettre(&car);
         RemplacCar(&lettreEstAjoutee,car,motATrouver,motMystere);
@@ -179,6 +178,9 @@ int main()
         DessinerPendu(cptVie,taillePend,&ligne,&hauteur);
 
     }while(CondFinDePartie(cptVie,lettreEstAjoutee,motATrouver, motMystere)==0);
+
+
+
 
 
     return 0;

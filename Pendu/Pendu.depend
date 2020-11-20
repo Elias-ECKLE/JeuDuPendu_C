@@ -5,15 +5,15 @@
 	<string.h>
 	<windows.h>
 
-1605813706 source:c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\main.c
-	<stdio.h>
-	<stdlib.h>
-	<string.h>
+1605871654 source:c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\main.c
 	"header.h"
 
-1605813681 source:c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\calcul.c
+1605871654 source:c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\calcul.c
 	"header.h"
 	<windows.h>
 
-1605813530 c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\header.h
+1605866262 c:\algoracine\algoracinef2\codeblockf2\exos\semaine1_cycle1_2020-2021\pendu\programme_pendu\pendu_elias_c\jeudupendu_c\pendu\header.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
 
